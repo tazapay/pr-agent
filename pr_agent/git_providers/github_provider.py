@@ -618,7 +618,7 @@ class GithubProvider(GitProvider):
                 contents = file.read()  # Keep as bytes
             return contents  # Return as bytes
         except Exception as e:
-            get_logger().warning(f"Failed to read local .pr_agent.toml: {e}")
+            get_logger().warning(f"Failed to read workflow runner .pr_agent.toml: {e}")
             return ""
 
     def get_workspace_name(self):
