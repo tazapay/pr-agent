@@ -615,8 +615,8 @@ class GithubProvider(GitProvider):
         try:
             file_path = os.path.join(os.getcwd(), ".pr_agent.toml")
             with open(file_path, "rb") as file:  # Read in binary mode
-                contents = file.read().decode("utf-8")  # Explicitly decode bytes to string
-            return contents
+                contents = file.read()  # Keep as bytes
+            return contents  # Return as bytes
         except Exception as e:
             get_logger().warning(f"Failed to read local .pr_agent.toml: {e}")
             return ""
