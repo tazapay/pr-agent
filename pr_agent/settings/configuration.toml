@@ -1,8 +1,13 @@
+# Important: This file contains all available configuration options.
+# Do not copy this entire file to your repository configuration.
+# Your repository configuration should only include options you wish to override from the defaults.
+
 [config]
 # models
-model="gpt-4o-2024-11-20"
-fallback_models=["gpt-4o-2024-08-06"]
+model="o3-mini"
+fallback_models=["gpt-4o-2024-11-20"]
 #model_weak="gpt-4o-mini-2024-07-18" # optional, a weaker model to use for some easier tasks
+response_language="en-US" # Language locales code for PR responses in ISO 3166 and ISO 639 format (e.g., "en-US", "it-IT", "zh-CN", ...)
 # CLI
 git_provider="github"
 publish_output=true
@@ -48,6 +53,12 @@ ignore_pr_authors = [] # authors to ignore from PR agent when an PR is created
 #
 is_auto_command = false # will be auto-set to true if the command is triggered by an automation
 enable_ai_metadata = false # will enable adding ai metadata
+reasoning_effort = "medium" # "low", "medium", "high"
+# auto approval 💎
+enable_auto_approval=false # Set to true to enable auto-approval of PRs under certain conditions
+auto_approve_for_low_review_effort=-1 # -1 to disable, [1-5] to set the threshold for auto-approval
+auto_approve_for_no_suggestions=false # If true, the PR will be auto-approved if there are no suggestions
+
 
 [pr_reviewer] # /review #
 # enable/disable features
@@ -70,9 +81,6 @@ minimal_commits_for_incremental_review=0
 minimal_minutes_for_incremental_review=0
 enable_intro_text=true
 enable_help_text=false # Determines whether to include help text in the PR review. Enabled by default.
-# auto approval
-enable_auto_approval=false
-
 
 [pr_description] # /describe #
 publish_labels=false
@@ -324,3 +332,11 @@ utilize_auto_best_practices = true # public - disable usage of auto best practic
 extra_instructions = "" # public - extra instructions to the auto best practices generation prompt
 content = ""
 max_patterns = 5 # max number of patterns to be detected
+
+
+[azure_devops_server]
+pr_commands = [
+    "/describe",
+    "/review",
+    "/improve",
+]

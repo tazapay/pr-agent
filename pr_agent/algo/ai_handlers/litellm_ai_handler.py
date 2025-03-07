@@ -6,11 +6,12 @@ import requests
 from litellm import acompletion
 from tenacity import retry, retry_if_exception_type, stop_after_attempt
 
-from pr_agent.algo import NO_SUPPORT_TEMPERATURE_MODELS, USER_MESSAGE_ONLY_MODELS
+from pr_agent.algo import NO_SUPPORT_TEMPERATURE_MODELS, SUPPORT_REASONING_EFFORT_MODELS, USER_MESSAGE_ONLY_MODELS
 from pr_agent.algo.ai_handlers.base_ai_handler import BaseAiHandler
-from pr_agent.algo.utils import get_version
+from pr_agent.algo.utils import ReasoningEffort, get_version
 from pr_agent.config_loader import get_settings
 from pr_agent.log import get_logger
+import json
 
 OPENAI_RETRIES = 5
 
@@ -95,11 +96,18 @@ class LiteLLMAIHandler(BaseAiHandler):
         if get_settings().get("DEEPSEEK.KEY", None):
             os.environ['DEEPSEEK_API_KEY'] = get_settings().get("DEEPSEEK.KEY")
 
+        # Support deepinfra models
+        if get_settings().get("DEEPINFRA.KEY", None):
+            os.environ['DEEPINFRA_API_KEY'] = get_settings().get("DEEPINFRA.KEY")
+
         # Models that only use user meessage
         self.user_message_only_models = USER_MESSAGE_ONLY_MODELS
 
         # Model that doesn't support temperature argument
         self.no_support_temperature_models = NO_SUPPORT_TEMPERATURE_MODELS
+
+        # Models that support reasoning effort
+        self.support_reasoning_models = SUPPORT_REASONING_EFFORT_MODELS
 
     def prepare_logs(self, response, system, user, resp, finish_reason):
         response_log = response.dict().copy()
@@ -228,7 +236,15 @@ class LiteLLMAIHandler(BaseAiHandler):
 
             # Add temperature only if model supports it
             if model not in self.no_support_temperature_models and not get_settings().config.custom_reasoning_model:
+                # get_logger().info(f"Adding temperature with value {temperature} to model {model}.")
                 kwargs["temperature"] = temperature
+
+            # Add reasoning_effort if model supports it
+            if (model in self.support_reasoning_models):
+                supported_reasoning_efforts = [ReasoningEffort.HIGH.value, ReasoningEffort.MEDIUM.value, ReasoningEffort.LOW.value]
+                reasoning_effort = get_settings().config.reasoning_effort if (get_settings().config.reasoning_effort in supported_reasoning_efforts) else ReasoningEffort.MEDIUM.value
+                get_logger().info(f"Adding reasoning_effort with value {reasoning_effort} to model {model}.")
+                kwargs["reasoning_effort"] = reasoning_effort
 
             if get_settings().litellm.get("enable_callbacks", False):
                 kwargs = self.add_litellm_callbacks(kwargs)
@@ -243,12 +259,22 @@ class LiteLLMAIHandler(BaseAiHandler):
             if self.repetition_penalty:
                 kwargs["repetition_penalty"] = self.repetition_penalty
 
+            #Added support for extra_headers while using litellm to call underlying model, via a api management gateway, would allow for passing custom headers for security and authorization
+            if get_settings().get("LITELLM.EXTRA_HEADERS", None):
+                try:
+                    litellm_extra_headers = json.loads(get_settings().litellm.extra_headers)
+                    if not isinstance(litellm_extra_headers, dict):
+                        raise ValueError("LITELLM.EXTRA_HEADERS must be a JSON object")
+                except json.JSONDecodeError as e:
+                    raise ValueError(f"LITELLM.EXTRA_HEADERS contains invalid JSON: {str(e)}")
+                kwargs["extra_headers"] = litellm_extra_headers
+            
             get_logger().debug("Prompts", artifact={"system": system, "user": user})
-
+            
             if get_settings().config.verbosity_level >= 2:
                 get_logger().info(f"\nSystem prompt:\n{system}")
                 get_logger().info(f"\nUser prompt:\n{user}")
-
+                
             response = await acompletion(**kwargs)
         except (openai.APIError, openai.APITimeoutError) as e:
             get_logger().warning(f"Error during LLM inference: {e}")

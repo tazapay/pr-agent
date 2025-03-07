@@ -30,6 +30,14 @@ model="" # the OpenAI model you've deployed on Azure (e.g. gpt-4o)
 fallback_models=["..."]
 ```
 
+Passing custom headers to the underlying LLM Model API can be done by setting extra_headers parameter to litellm. 
+```
+[litellm]
+extra_headers='{"projectId": "<authorized projectId >", ...}') #The value of this setting should be a JSON string representing the desired headers, a ValueError is thrown otherwise.
+```
+This enables users to pass authorization tokens or API keys, when routing requests through an API management gateway.
+
+
 ### Ollama
 
 You can run models locally through either [VLLM](https://docs.litellm.ai/docs/providers/vllm) or [Ollama](https://docs.litellm.ai/docs/providers/ollama)
@@ -185,22 +193,44 @@ key = ...
 
 (you can obtain a deepseek-chat key from [here](https://platform.deepseek.com))
 
+
+### DeepInfra
+
+To use DeepSeek model with DeepInfra, for example, set:
+```
+[config] # in configuration.toml
+model = "deepinfra/deepseek-ai/DeepSeek-R1-Distill-Llama-70B"
+fallback_models = ["deepinfra/deepseek-ai/DeepSeek-R1-Distill-Qwen-32B"]
+[deepinfra] # in .secrets.toml
+key = ... # your DeepInfra api key
+```
+(you can obtain a DeepInfra key from [here](https://deepinfra.com/dash/api_keys))
+
 ### Custom models
 
 If the relevant model doesn't appear [here](https://github.com/Codium-ai/pr-agent/blob/main/pr_agent/algo/__init__.py), you can still use it as a custom model:
 
-(1) Set the model name in the configuration file:
+1. Set the model name in the configuration file:
 ```
 [config]
 model="custom_model_name"
 fallback_models=["custom_model_name"]
 ```
-(2) Set the maximal tokens for the model:
+2. Set the maximal tokens for the model:
 ```
 [config]
 custom_model_max_tokens= ...
 ```
-(3) Go to [litellm documentation](https://litellm.vercel.app/docs/proxy/quick_start#supported-llms), find the model you want to use, and set the relevant environment variables.
+3. Go to [litellm documentation](https://litellm.vercel.app/docs/proxy/quick_start#supported-llms), find the model you want to use, and set the relevant environment variables.
 
-(4) Most reasoning models do not support chat-style inputs (`system` and `user` messages) or temperature settings. 
+4. Most reasoning models do not support chat-style inputs (`system` and `user` messages) or temperature settings. 
 To bypass chat templates and temperature controls, set `config.custom_reasoning_model = true` in your configuration file.
+
+## Dedicated parameters
+
+### OpenAI models
+
+[config]
+reasoning_efffort= = "medium" # "low", "medium", "high"
+
+With the OpenAI models that support reasoning effort (eg: o3-mini), you can specify its reasoning effort via `config` section. The default value is `medium`. You can change it to `high` or `low` based on your usage.

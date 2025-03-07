@@ -466,6 +466,8 @@ class PRCodeSuggestions:
                     suggestion["score"] = 7
                     suggestion["score_why"] = ""
 
+                suggestion = self.validate_one_liner_suggestion_not_repeating_code(suggestion)
+
                 # if the before and after code is the same, clear one of them
                 try:
                     if suggestion['existing_code'] == suggestion['improved_code']:
@@ -630,6 +632,33 @@ class PRCodeSuggestions:
             # get_logger().info("Extended mode is enabled automatically based on the configuration toggle")
             return True
         return False
+
+    def validate_one_liner_suggestion_not_repeating_code(self, suggestion):
+        try:
+            existing_code = suggestion.get('existing_code', '').strip()
+            if '...' in existing_code:
+                return suggestion
+            new_code = suggestion.get('improved_code', '').strip()
+
+            relevant_file = suggestion.get('relevant_file', '').strip()
+            diff_files = self.git_provider.get_diff_files()
+            for file in diff_files:
+                if file.filename.strip() == relevant_file:
+                    # protections
+                    if not file.head_file:
+                        get_logger().info(f"head_file is empty")
+                        return suggestion
+                    head_file = file.head_file
+                    base_file = file.base_file
+                    if existing_code in base_file and existing_code not in head_file and new_code in head_file:
+                        suggestion["score"] = 0
+                        get_logger().warning(
+                            f"existing_code is in the base file but not in the head file, setting score to 0",
+                            artifact={"suggestion": suggestion})
+        except Exception as e:
+            get_logger().exception(f"Error validating one-liner suggestion", artifact={"error": e})
+
+        return suggestion
 
     def remove_line_numbers(self, patches_diff_list: List[str]) -> List[str]:
         # create a copy of the patches_diff_list, without line numbers for '__new hunk__' sections
