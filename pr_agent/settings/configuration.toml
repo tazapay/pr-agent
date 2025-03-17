@@ -1,13 +1,14 @@
 # Important: This file contains all available configuration options.
 # Do not copy this entire file to your repository configuration.
 # Your repository configuration should only include options you wish to override from the defaults.
+#
+# Use this page: 'https://qodo-merge-docs.qodo.ai/ai_search/' to ask questions about the configuration options.
 
 [config]
 # models
 model="o3-mini"
 fallback_models=["gpt-4o-2024-11-20"]
 #model_weak="gpt-4o-mini-2024-07-18" # optional, a weaker model to use for some easier tasks
-response_language="en-US" # Language locales code for PR responses in ISO 3166 and ISO 639 format (e.g., "en-US", "it-IT", "zh-CN", ...)
 # CLI
 git_provider="github"
 publish_output=true
@@ -23,6 +24,7 @@ disable_auto_feedback = false
 ai_timeout=120 # 2minutes
 skip_keys = []
 custom_reasoning_model = false # when true, disables system messages and temperature controls for models that don't support chat-style inputs
+response_language="en-US" # Language locales code for PR responses in ISO 3166 and ISO 639 format (e.g., "en-US", "it-IT", "zh-CN", ...)
 # token limits
 max_description_tokens = 500
 max_commits_tokens = 500
@@ -58,6 +60,10 @@ reasoning_effort = "medium" # "low", "medium", "high"
 enable_auto_approval=false # Set to true to enable auto-approval of PRs under certain conditions
 auto_approve_for_low_review_effort=-1 # -1 to disable, [1-5] to set the threshold for auto-approval
 auto_approve_for_no_suggestions=false # If true, the PR will be auto-approved if there are no suggestions
+# extended thinking for Claude reasoning models
+enable_claude_extended_thinking = false # Set to true to enable extended thinking feature
+extended_thinking_budget_tokens = 2048
+extended_thinking_max_output_tokens = 4096
 
 
 [pr_reviewer] # /review #
@@ -98,7 +104,7 @@ publish_description_as_comment_persistent=true
 ## changes walkthrough section
 enable_semantic_files_types=true
 collapsible_file_list='adaptive' # true, false, 'adaptive'
-collapsible_file_list_threshold=8
+collapsible_file_list_threshold=6
 inline_file_summary=false # false, true, 'table'
 # markers
 use_description_markers=false
@@ -140,6 +146,7 @@ max_number_of_calls = 3
 parallel_calls = true
 
 final_clip_factor = 0.8
+decouple_hunks = false
 # self-review checkbox
 demand_code_suggestions_self_review=false # add a checkbox for the author to self-review the code suggestions
 code_suggestions_self_review_text= "**Author self-review**: I have reviewed the PR code suggestions, and addressed the relevant ones."

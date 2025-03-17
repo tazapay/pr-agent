@@ -704,12 +704,14 @@ def _fix_key_value(key: str, value: str):
 
 
 def load_yaml(response_text: str, keys_fix_yaml: List[str] = [], first_key="", last_key="") -> dict:
+    response_text_original = copy.deepcopy(response_text)
     response_text = response_text.strip('\n').removeprefix('```yaml').rstrip().removesuffix('```')
     try:
         data = yaml.safe_load(response_text)
     except Exception as e:
         get_logger().warning(f"Initial failure to parse AI prediction: {e}")
-        data = try_fix_yaml(response_text, keys_fix_yaml=keys_fix_yaml, first_key=first_key, last_key=last_key)
+        data = try_fix_yaml(response_text, keys_fix_yaml=keys_fix_yaml, first_key=first_key, last_key=last_key,
+                            response_text_original=response_text_original)
         if not data:
             get_logger().error(f"Failed to parse AI prediction after fallbacks",
                                artifact={'response_text': response_text})
@@ -723,7 +725,8 @@ def load_yaml(response_text: str, keys_fix_yaml: List[str] = [], first_key="", l
 def try_fix_yaml(response_text: str,
                  keys_fix_yaml: List[str] = [],
                  first_key="",
-                 last_key="",) -> dict:
+                 last_key="",
+                 response_text_original="") -> dict:
     response_text_lines = response_text.split('\n')
 
     keys_yaml = ['relevant line:', 'suggestion content:', 'relevant file:', 'existing code:', 'improved code:']
@@ -745,6 +748,8 @@ def try_fix_yaml(response_text: str,
     # second fallback - try to extract only range from first ```yaml to ````
     snippet_pattern = r'```(yaml)?[\s\S]*?```'
     snippet = re.search(snippet_pattern, '\n'.join(response_text_lines_copy))
+    if not snippet:
+        snippet = re.search(snippet_pattern, response_text_original) # before we removed the "```"
     if snippet:
         snippet_text = snippet.group()
         try:

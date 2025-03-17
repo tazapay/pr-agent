@@ -147,8 +147,6 @@ ___
 \
 ‣ **Update Changelog ([`/update_changelog`](https://qodo-merge-docs.qodo.ai/tools/update_changelog/))**: Automatically updating the CHANGELOG.md file with the PR changes.
 \
-‣ **Find Similar Issue ([`/similar_issue`](https://qodo-merge-docs.qodo.ai/tools/similar_issues/))**: Automatically retrieves and presents similar issues.
-\
 ‣ **Add Documentation 💎  ([`/add_docs`](https://qodo-merge-docs.qodo.ai/tools/documentation/))**: Generates documentation to methods/functions/classes that changed in the PR.
 \
 ‣ **Generate Custom Labels 💎 ([`/generate_labels`](https://qodo-merge-docs.qodo.ai/tools/custom_labels/))**: Generates custom labels for the PR, based on specific guidelines defined by the user.

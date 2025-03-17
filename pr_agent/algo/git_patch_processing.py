@@ -285,7 +285,7 @@ def handle_patch_deletions(patch: str, original_file_content_str: str,
     return patch
 
 
-def convert_to_hunks_with_lines_numbers(patch: str, file) -> str:
+def decouple_and_convert_to_hunks_with_lines_numbers(patch: str, file) -> str:
     """
     Convert a given patch string into a string with line numbers for each hunk, indicating the new and old content of
     the file.
@@ -317,11 +317,17 @@ __old hunk__
         line6
            ...
     """
-    # if the file was deleted, return a message indicating that the file was deleted
-    if hasattr(file, 'edit_type') and file.edit_type == EDIT_TYPE.DELETED:
-        return f"\n\n## File '{file.filename.strip()}' was deleted\n"
 
-    patch_with_lines_str = f"\n\n## File: '{file.filename.strip()}'\n"
+    # Add a header for the file
+    if file:
+        # if the file was deleted, return a message indicating that the file was deleted
+        if hasattr(file, 'edit_type') and file.edit_type == EDIT_TYPE.DELETED:
+            return f"\n\n## File '{file.filename.strip()}' was deleted\n"
+
+        patch_with_lines_str = f"\n\n## File: '{file.filename.strip()}'\n"
+    else:
+        patch_with_lines_str = ""
+
     patch_lines = patch.splitlines()
     RE_HUNK_HEADER = re.compile(
         r"^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@[ ]?(.*)")

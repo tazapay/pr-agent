@@ -268,7 +268,7 @@ dual_publishing_score_threshold = x
 Where x represents the minimum score threshold (>=) for suggestions to be presented as commitable PR comments in addition to the table. Default is -1 (disabled).
 
 ### Self-review
-> `💎 feature`
+> `💎 feature` Platforms supported: GitHub, GitLab
 
 If you set in a configuration file:
 ```toml
@@ -318,15 +318,25 @@ code_suggestions_self_review_text = "... (your text here) ..."
 
 Under specific conditions, Qodo Merge can auto-approve a PR when a specific comment is invoked, or when the PR meets certain criteria.
 
-To ensure safety, the auto-approval feature is disabled by default. To enable auto-approval, you need to actively set, in a pre-defined _configuration file_, the following:
+**To ensure safety, the auto-approval feature is disabled by default.**
+To enable auto-approval features, you need to actively set one or both of the following options in a pre-defined _configuration file_:
 ```toml
 [config]
-enable_auto_approval = true
+enable_comment_approval = true # For approval via comments
+enable_auto_approval = true   # For criteria-based auto-approval
 ```
-Note that this specific flag cannot be set with a command line argument, only in the configuration file, committed to the repository.
-This ensures that enabling auto-approval is a deliberate decision by the repository owner.
 
-**(1) Auto-approval by commenting**
+!!! note "Notes"
+    - Note that this specific flag cannot be set with a command line argument, only in the configuration file, committed to the repository.
+    - Enabling auto-approval must be a deliberate decision by the repository owner.
+
+1\. **Auto-approval by commenting**
+
+To enable auto-approval by commenting, set in the configuration file:
+```toml
+[config]
+enable_comment_approval = true
+```
 
 After enabling, by commenting on a PR:
 ```
@@ -334,13 +344,20 @@ After enabling, by commenting on a PR:
 ```
 Qodo Merge will automatically approve the PR, and add a comment with the approval.
 
-**(2) Auto-approval when the PR meets certain criteria**
+2\. **Auto-approval when the PR meets certain criteria**
+
+To enable auto-approval based on specific criteria, first, you need to enable the top-level flag:
+```toml
+[config]
+enable_auto_approval = true
+```
 
 There are two criteria that can be set for auto-approval:
 
 - **Review effort score**
 ```toml
 [config]
+enable_auto_approval = true
 auto_approve_for_low_review_effort = X # X is a number between 1 to 5
 ```
 When the [review effort score](https://www.qodo.ai/images/pr_agent/review3.png) is lower or equal to X, the PR will be auto-approved.
@@ -349,6 +366,7 @@ ___
 - **No code suggestions**
 ```toml
 [config]
+enable_auto_approval = true
 auto_approve_for_no_suggestions = true
 ```
 When no [code suggestion](https://www.qodo.ai/images/pr_agent/code_suggestions_as_comment_closed.png) were found for the PR, the PR will be auto-approved.
@@ -443,14 +461,12 @@ Note: Chunking is primarily relevant for large PRs. For most PRs (up to 500 line
       </tr>
     </table>
 
-## A note on code suggestions quality
+## Understanding AI Code Suggestions
 
-- AI models for code are getting better and better, but they are not flawless. Not all the suggestions will be perfect, and a user should not accept all of them automatically. Critical reading and judgment are required.
-- While mistakes of the AI are rare but can happen, a real benefit from the suggestions of the `improve` (and [`review`](https://qodo-merge-docs.qodo.ai/tools/review/)) tool is to catch, with high probability, **mistakes or bugs done by the PR author**, when they happen. So, it's a good practice to spend the needed ~30-60 seconds to review the suggestions, even if not all of them are always relevant.
-- The hierarchical structure of the suggestions is designed to help the user to _quickly_ understand them, and to decide which ones are relevant and which are not:
-
-    - Only if the `Category` header is relevant, the user should move to the summarized suggestion description
-    - Only if the summarized suggestion description is relevant, the user should click on the collapsible, to read the full suggestion description with a code preview example.
-
-- In addition, we recommend to use the [`extra_instructions`](https://qodo-merge-docs.qodo.ai/tools/improve/#extra-instructions-and-best-practices) field to guide the model to suggestions that are more relevant to the specific needs of the project.
-- The interactive [PR chat](https://qodo-merge-docs.qodo.ai/chrome-extension/) also provides an easy way to get more tailored suggestions and feedback from the AI model.
+- **AI Limitations:** AI models for code are getting better and better, but they are not flawless. Not all the suggestions will be perfect, and a user should not accept all of them automatically. Critical reading and judgment are required. Mistakes of the AI are rare but can happen, and it is usually quite easy for a human to spot them.
+- **Purpose of Suggestions:**
+    - **Self-reflection:** The suggestions aim to enable developers to _self-reflect_ and improve their pull requests. This process can help to identify blind spots, uncover missed edge cases, and enhance code readability and coherency. Even when a specific code suggestion isn't suitable, the underlying issue it highlights often reveals something important that might deserve attention.
+    - **Bug detection:** The suggestions also alert on any _critical bugs_ that may have been identified during the analysis. This provides an additional safety net to catch potential issues before they make it into production. It's perfectly acceptable to implement only the suggestions you find valuable for your specific context.
+- **Hierarchy:** Presenting the suggestions in a structured hierarchical table enables the user to _quickly_ understand them, and to decide which ones are relevant and which are not.
+- **Customization:** To guide the model to suggestions that are more relevant to the specific needs of your project, we recommend to use the [`extra_instructions`](https://qodo-merge-docs.qodo.ai/tools/improve/#extra-instructions-and-best-practices) and [`best practices`](https://qodo-merge-docs.qodo.ai/tools/improve/#best-practices) fields.
+- **Interactive usage:** The interactive [PR chat](https://qodo-merge-docs.qodo.ai/chrome-extension/) also provides an easy way to get more tailored suggestions and feedback from the AI model.
