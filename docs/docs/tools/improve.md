@@ -440,7 +440,7 @@ Note: Chunking is primarily relevant for large PRs. For most PRs (up to 500 line
       </tr>
       <tr>
         <td><b>allow_thumbs_up_down</b></td>
-        <td>If set to true, all code suggestions will have thumbs up and thumbs down buttons, to encourage users to provide feedback on the suggestions. Default is false.</td>
+        <td>If set to true, all code suggestions will have thumbs up and thumbs down buttons, to encourage users to provide feedback on the suggestions. Default is false. Note that this feature is for statistics tracking. It will not affect future feedback from the AI model.</td>
       </tr>
     </table>
 
