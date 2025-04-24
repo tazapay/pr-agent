@@ -35,7 +35,6 @@ class PRHelpMessage:
         self.ai_handler = ai_handler()
         self.question_str = self.parse_args(args)
         self.return_as_string = return_as_string
-        self.num_retrieved_snippets = get_settings().get('pr_help.num_retrieved_snippets', 5)
         if self.question_str:
             self.vars = {
                 "question": self.question_str,
@@ -209,6 +208,7 @@ class PRHelpMessage:
                 tool_names.append(f"[REVIEW]({base_path}/review/)")
                 tool_names.append(f"[IMPROVE]({base_path}/improve/)")
                 tool_names.append(f"[UPDATE CHANGELOG]({base_path}/update_changelog/)")
+                tool_names.append(f"[HELP DOCS]({base_path}/help_docs/)")
                 tool_names.append(f"[ADD DOCS]({base_path}/documentation/) 💎")
                 tool_names.append(f"[TEST]({base_path}/test/) 💎")
                 tool_names.append(f"[IMPROVE COMPONENT]({base_path}/improve_component/) 💎")
@@ -224,6 +224,7 @@ class PRHelpMessage:
                 descriptions.append("Adjustable feedback about the PR, possible issues, security concerns, review effort and more")
                 descriptions.append("Code suggestions for improving the PR")
                 descriptions.append("Automatically updates the changelog")
+                descriptions.append("Answers a question regarding this repository, or a given one, based on given documentation path")
                 descriptions.append("Generates documentation to methods/functions/classes that changed in the PR")
                 descriptions.append("Generates unit tests for a specific component, based on the PR code change")
                 descriptions.append("Code suggestions for a specific component that changed in the PR")
@@ -240,6 +241,7 @@ class PRHelpMessage:
                 commands.append("`/review`")
                 commands.append("`/improve`")
                 commands.append("`/update_changelog`")
+                commands.append("`/help_docs`")
                 commands.append("`/add_docs`")
                 commands.append("`/test`")
                 commands.append("`/improve_component`")
@@ -255,6 +257,7 @@ class PRHelpMessage:
                 checkbox_list.append(" - [ ] Run <!-- /review -->")
                 checkbox_list.append(" - [ ] Run <!-- /improve -->")
                 checkbox_list.append(" - [ ] Run <!-- /update_changelog -->")
+                checkbox_list.append(" - [ ] Run <!-- /help_docs -->")
                 checkbox_list.append(" - [ ] Run <!-- /add_docs -->")
                 checkbox_list.append(" - [ ] Run <!-- /test -->")
                 checkbox_list.append(" - [ ] Run <!-- /improve_component -->")

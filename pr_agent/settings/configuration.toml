@@ -6,16 +6,17 @@
 
 [config]
 # models
-model="o3-mini"
-fallback_models=["gpt-4o-2024-11-20"]
-#model_weak="gpt-4o-mini-2024-07-18" # optional, a weaker model to use for some easier tasks
+model="o4-mini"
+fallback_models=["gpt-4.1"]
+#model_weak="gpt-4o" # optional, a weaker model to use for some easier tasks
 # CLI
 git_provider="github"
 publish_output=true
 publish_output_progress=true
-publish_output_no_suggestions=true
 verbosity_level=0 # 0,1,2
 use_extra_bad_extensions=false
+# Log
+log_level="DEBUG"
 # Configurations
 use_wiki_settings_file=true
 use_repo_settings_file=true
@@ -30,6 +31,7 @@ max_description_tokens = 500
 max_commits_tokens = 500
 max_model_tokens = 32000 # Limits the maximum number of tokens that can be used by any model, regardless of the model's default capabilities.
 custom_model_max_tokens=-1 # for models not in the default list
+model_token_count_estimate_factor=0.3 # factor to increase the token count estimate, in order to reduce likelihood of model failure due to too many tokens - applicable only when requesting an accurate estimate.
 # patch extension logic
 patch_extension_skip_types =[".md",".txt"]
 allow_dynamic_context=true
@@ -117,6 +119,7 @@ async_ai_calls=true
 
 [pr_questions] # /ask #
 enable_help_text=false
+use_conversation_history=true
 
 
 [pr_code_suggestions] # /improve #
@@ -129,9 +132,9 @@ focus_only_on_problems=true
 extra_instructions = ""
 enable_help_text=false
 enable_chat_text=false
-enable_intro_text=true
 persistent_comment=true
 max_history_len=4
+publish_output_no_suggestions=true
 # enable to apply suggestion 💎
 apply_suggestions_checkbox=true
 # suggestions scoring
@@ -141,7 +144,7 @@ new_score_mechanism_th_high=9
 new_score_mechanism_th_medium=7
 # params for '/improve --extended' mode
 auto_extended_mode=true
-num_code_suggestions_per_chunk=4
+num_code_suggestions_per_chunk=3
 max_number_of_calls = 3
 parallel_calls = true
 
@@ -165,7 +168,7 @@ The code suggestions should focus only on the following:
 ...
 """
 suggestions_score_threshold=0
-num_code_suggestions_per_chunk=4
+num_code_suggestions_per_chunk=3
 self_reflect_on_custom_suggestions=true
 enable_help_text=false
 
@@ -180,6 +183,7 @@ class_name = ""        # in case there are several methods with the same name in
 push_changelog_changes=false
 extra_instructions = ""
 add_pr_link=true
+skip_ci_on_push=true
 
 [pr_analyze] # /analyze #
 enable_help_text=true
@@ -211,6 +215,14 @@ force_local_db=false
 num_retrieved_snippets=5
 
 [pr_config] # /config #
+
+[pr_help_docs]
+repo_url = "" #If not overwritten, will use the repo from where the context came from (issue or PR)
+repo_default_branch = "main"
+docs_path = "docs"
+exclude_root_readme = false
+supported_doc_exts = [".md", ".mdx", ".rst"]
+enable_help_text=false
 
 [github]
 # The type of deployment to create. Valid values are 'app' or 'user'.
