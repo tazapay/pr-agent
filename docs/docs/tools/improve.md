@@ -262,6 +262,21 @@ We advise users to apply critical analysis and judgment when implementing the pr
 In addition to mistakes (which may happen, but are rare), sometimes the presented code modification may serve more as an _illustrative example_ than a direct applicable solution.
 In such cases, we recommend prioritizing the suggestion's detailed description, using the diff snippet primarily as a supporting reference.
 
+
+### Chat on code suggestions 
+
+> `💎 feature` Platforms supported: GitHub, GitLab
+
+If you set the following in your configuration file:
+
+```toml
+[pr_code_suggestions]
+enable_chat_in_code_suggestions = true
+```
+
+The Qodo Merge bot will automatically listen and respond to comments within code suggestion discussions that it has initiated, without requiring explicit tool calls.
+
+
 ### Dual publishing mode
 
 Our recommended approach for presenting code suggestions is through a [table](https://qodo-merge-docs.qodo.ai/tools/improve/#overview) (`--pr_code_suggestions.commitable_code_suggestions=false`).
@@ -401,18 +416,18 @@ Qodo Merge uses a dynamic strategy to generate code suggestions based on the siz
 #### 1. Chunking large PRs
 
 - Qodo Merge divides large PRs into 'chunks'.
-- Each chunk contains up to `pr_code_suggestions.max_context_tokens` tokens (default: 14,000).
+- Each chunk contains up to `pr_code_suggestions.max_context_tokens` tokens (default: 24,000).
 
 #### 2. Generating suggestions
 
-- For each chunk, Qodo Merge generates up to `pr_code_suggestions.num_code_suggestions_per_chunk` suggestions (default: 3).
+- For each chunk, Qodo Merge generates up to `pr_code_suggestions.num_code_suggestions_per_chunk` suggestions (default: 4).
 
 This approach has two main benefits:
 
 - Scalability: The number of suggestions scales with the PR size, rather than being fixed.
 - Quality: By processing smaller chunks, the AI can maintain higher quality suggestions, as larger contexts tend to decrease AI performance.
 
-Note: Chunking is primarily relevant for large PRs. For most PRs (up to 500 lines of code), Qodo Merge will be able to process the entire code in a single call.
+Note: Chunking is primarily relevant for large PRs. For most PRs (up to 600 lines of code), Qodo Merge will be able to process the entire code in a single call.
 
 ## Configuration options
 
@@ -426,6 +441,10 @@ Note: Chunking is primarily relevant for large PRs. For most PRs (up to 500 line
       <tr>
         <td><b>commitable_code_suggestions</b></td>
         <td>If set to true, the tool will display the suggestions as commitable code comments. Default is false.</td>
+      </tr>
+      <tr>
+        <td><b>enable_chat_in_code_suggestions</b></td>
+        <td>If set to true, QM bot will interact with comments made on code changes it has proposed. Default is true.</td>
       </tr>
       <tr>
         <td><b>dual_publishing_score_threshold</b></td>
@@ -497,4 +516,5 @@ Note: Chunking is primarily relevant for large PRs. For most PRs (up to 500 line
     - **Bug detection:** The suggestions also alert on any _critical bugs_ that may have been identified during the analysis. This provides an additional safety net to catch potential issues before they make it into production. It's perfectly acceptable to implement only the suggestions you find valuable for your specific context.
 - **Hierarchy:** Presenting the suggestions in a structured hierarchical table enables the user to _quickly_ understand them, and to decide which ones are relevant and which are not.
 - **Customization:** To guide the model to suggestions that are more relevant to the specific needs of your project, we recommend to use the [`extra_instructions`](https://qodo-merge-docs.qodo.ai/tools/improve/#extra-instructions-and-best-practices) and [`best practices`](https://qodo-merge-docs.qodo.ai/tools/improve/#best-practices) fields.
+- **Model Selection:** SaaS users can also [choose](https://qodo-merge-docs.qodo.ai/usage-guide/qodo_merge_models/) between different models. For specific programming languages or use cases, some models may perform better than others.
 - **Interactive usage:** The interactive [PR chat](https://qodo-merge-docs.qodo.ai/chrome-extension/) also provides an easy way to get more tailored suggestions and feedback from the AI model.
