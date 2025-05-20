@@ -4,6 +4,7 @@ import hashlib
 import itertools
 import re
 import time
+import os
 import traceback
 import json
 from datetime import datetime
@@ -730,6 +731,7 @@ class GithubProvider(GitProvider):
     def get_issue_comments(self):
         return self.pr.get_issue_comments()
 
+    """
     def get_repo_settings(self):
         try:
             # contents = self.repo_obj.get_contents(".pr_agent.toml", ref=self.pr.head.sha).decoded_content
@@ -738,6 +740,17 @@ class GithubProvider(GitProvider):
             contents = self.repo_obj.get_contents(".pr_agent.toml").decoded_content
             return contents
         except Exception:
+            return ""
+    """
+
+    def get_repo_settings(self):
+        try:
+            file_path = os.path.join(os.getcwd(), ".pr_agent.toml")
+            with open(file_path, "rb") as file:  # Read in binary mode
+                contents = file.read()  # Keep as bytes
+            return contents  # Return as bytes
+        except Exception as e:
+            get_logger().warning(f"Failed to read workflow runner .pr_agent.toml: {e}")
             return ""
 
     def get_workspace_name(self):
